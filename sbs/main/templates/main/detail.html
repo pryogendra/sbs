@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="product-detail-layout">
+    
+    <div class="image-gallery">
+        {% if image_urls %}
+            <img id="mainProductImage" src="{{ image_urls.0 }}" alt="{{ product.name }}" class="main-image">
+        {% else %}
+            <img id="mainProductImage" src="{% static 'images/placeholder.jpg' %}" alt="Image not available" class="main-image">
+        {% endif %}
+        
+        <div class="thumbnail-container">
+            {% for url in image_urls %}
+                <img src="{{ url }}" 
+                     alt="{{ product.name }} thumbnail {{ forloop.counter }}" 
+                     class="thumbnail {% if forloop.first %}active{% endif %}"
+                     onclick="changeImage('{{ url }}', this)">
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="product-info">
+        <h1>{{ product.name }}</h1>
+        
+        <div class="price-details">₹{{ product.price|floatformat:2 }}</div>
+
+        <p class="short-desc">
+            {{ product.short_description }}
+        </p>
+        {% if product.slug %}
+        <a href="{% url 'main:checkout' slug=product.slug %}" class="buy-button">Buy Now</a>
+        {% else %}
+        <p class="error-message">Error: Product ID not found for purchase.</p>
+        {% endif %}
+        <div class="specs">
+            <h2>Key Specifications</h2>
+            <ul>
+                <li><strong>Processor:</strong> {{ product.processor }}</li>
+                <li><strong>RAM:</strong> {{ product.ram_gb }}GB LPDDR5X</li>
+                <li><strong>Storage:</strong> {{ product.storage }}</li>
+                <li><strong>Display:</strong> {{ product.display }}</li>
+                <li><strong>OS:</strong> {{ product.get_os_display }}</li>
+                <li><strong>Weight:</strong> {{ product.weight_kg }} kg</li>
+            </ul>
+        </div>
+
+        {% if product.long_description %}
+        <div class="specs" style="margin-top: 30px;">
+            <h2>Full Description</h2>
+            <p style="color: #ccc;">{{ product.long_description|linebreaks }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function changeImage(newSrc, clickedThumbnail) {
+        document.getElementById('mainProductImage').src = newSrc;
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.classList.remove('active');
+        });
+        clickedThumbnail.classList.add('active');
+    }
+</script>
+{% endblock %}

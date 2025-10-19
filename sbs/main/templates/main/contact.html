@@ -1,0 +1,51 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div class="content-page">
+    <h1>Get in Touch with SBS Electronics</h1>
+    
+    <p style="text-align: center; margin-bottom: 30px; color: #ccc;">
+        Have a question about an order, need technical support, or just want to discuss the latest tech? We're here to help!
+    </p>
+
+    <h2>Send Us a Message</h2>
+    <!-- POST to the same contact URL to process the form -->
+    <form action="{% url 'main:contact' %}" method="POST">
+        {% csrf_token %}
+        
+        <div class="django-form-container">
+            <!-- Render form fields manually to apply custom styles/classes -->
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Your Name</label>
+                {{ form.name }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Your Email</label>
+                {{ form.email }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.subject.id_for_label }}">Subject</label>
+                {{ form.subject }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.message.id_for_label }}">Message</label>
+                {{ form.message }}
+            </div>
+        </div>
+
+        <button type="submit" class="contact-button">Submit Inquiry</button>
+    </form>
+
+    <h2 style="margin-top: 40px;">Our Location & Hours</h2>
+    <p style="color: #ccc;"><strong>Store Address:</strong> Hanuman Nagar Vadar pada Rd no.2 Near Muslim Kabrastan Kandivali East 400101</p>
+    <p style="color: #ccc;"><strong>Phone:</strong> +91 9648761304 / +91 9819146049</p>
+    <p style="color: #ccc;"><strong>Email:</strong> support@sbselectronics.com</p>
+    <p style="color: #ccc;"><strong>Hours:</strong> 10:00 AM - 10:00 PM IST</p>
+</div>
+{% endblock %}

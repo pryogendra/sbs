@@ -1,0 +1,138 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Shop All Devices{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- Sidebar / Filter Form (Uses GET method for filtering) -->
+    <form method="GET" action="{% url 'main:device_list' %}" class="sidebar">
+        <h2>Filter Products</h2>
+
+        {% comment %} <!-- NEW: Search Input -->
+        <div class="filter-group">
+            <h3>Search Keywords</h3>
+            <input type="text" name="q" placeholder="Search by name or description" value="{{ current_search_query }}" class="form-input">
+        </div> {% endcomment %}
+
+        <!-- Category Filter -->
+        <div class="filter-group">
+            <h3>Category</h3>
+            <label><input type="checkbox" name="category" value="laptop" {% if 'laptop' in selected_categories %}checked{% endif %}> Laptops</label>
+            <label><input type="checkbox" name="category" value="desktop" {% if 'desktop' in selected_categories %}checked{% endif %}> Desktops</label>
+            <label><input type="checkbox" name="category" value="accessory" {% if 'accessory' in selected_categories %}checked{% endif %}> Accessories</label>
+        </div>
+
+        <!-- Brand Filter -->
+        <div class="filter-group">
+            <h3>Brand</h3>
+            <label><input type="checkbox" name="brand" value="dell" {% if 'dell' in selected_brands %}checked{% endif %}> Dell</label>
+            <label><input type="checkbox" name="brand" value="hp" {% if 'hp' in selected_brands %}checked{% endif %}> HP</label>
+            <label><input type="checkbox" name="brand" value="apple" {% if 'apple' in selected_brands %}checked{% endif %}> Apple (MacBook)</label>
+            <label><input type="checkbox" name="brand" value="lenovo" {% if 'lenovo' in selected_brands %}checked{% endif %}> Lenovo</label>
+            <label><input type="checkbox" name="brand" value="asus" {% if 'asus' in selected_brands %}checked{% endif %}> ASUS</label>
+            <label><input type="checkbox" name="brand" value="logitech" {% if 'logitech' in selected_brands %}checked{% endif %}> Logitech</label>
+        </div>
+
+        <!-- OS Filter -->
+        <div class="filter-group">
+            <h3>Operating System</h3>
+            <label><input type="checkbox" name="os" value="windows" {% if 'windows' in selected_os %}checked{% endif %}> Windows</label>
+            <label><input type="checkbox" name="os" value="macos" {% if 'macos' in selected_os %}checked{% endif %}> macOS</label>
+            <label><input type="checkbox" name="os" value="chromeos" {% if 'chromeos' in selected_os %}checked{% endif %}> ChromeOS</label>
+            <label><input type="checkbox" name="os" value="linux" {% if 'linux' in selected_os %}checked{% endif %}> Linux</label>
+        </div>
+
+        <!-- RAM Filter -->
+        <div class="filter-group">
+            <h3>Minimum RAM (GB)</h3>
+            <label><input type="radio" name="ram" value="8" {% if current_min_ram == '8' %}checked{% endif %}> 8 GB +</label>
+            <label><input type="radio" name="ram" value="16" {% if current_min_ram == '16' %}checked{% endif %}> 16 GB +</label>
+            <label><input type="radio" name="ram" value="32" {% if current_min_ram == '32' %}checked{% endif %}> 32 GB +</label>
+            <label><input type="radio" name="ram" value="all" {% if current_min_ram == 'all' or not current_min_ram %}checked{% endif %}> Any RAM</label>
+        </div>
+        
+        <!-- Price Filter (Simple min price demonstration) -->
+        <div class="filter-group">
+                <h3>Price Range</h3>
+                <label for="min-price">Min Price:</label>
+                <input type="range" id="min-price" name="min_price" min="10000" max="100000" value="{{ current_min_price|default:'10000' }}" step="5000">
+                <span id="min-price-display">{{ current_min_price|default:'10000' }}</span>
+                <script>
+                    const minPriceInput = document.getElementById('min-price');
+                    const minPriceDisplay = document.getElementById('min-price-display');
+                    minPriceInput.addEventListener('input', function() {
+                        minPriceDisplay.textContent = this.value;
+                    });
+                </script>
+            </div>
+
+        <button type="submit" class="apply-button">Apply Filters</button>
+        <a href="{% url 'main:device_list' %}" class="apply-button" style="background-color: #6c757d; margin-top: 10px;">Clear Filters</a>
+
+    </form>
+
+    <!-- Product Grid Content -->
+    <div>
+        {% if fallback_message %}
+            <div class="fallback-alert">
+                {% comment %} {{ fallback_message }} {% endcomment %}
+                <p style="grid-column: 1 / -1; text-align: center; color: var(--secondary-color); font-size: 1.2rem;">
+                    {{ fallback_message }}
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="product-grid">
+            {% if devices %}
+                {% for device in devices %}
+                    {% if device.slug %}
+                    <div class="product-card">
+                        <img src="{{ device.main_image.url }}" alt="{{ device.name }}">
+                        <h3>{{ device.name }}</h3>
+                        <p>{{ device.short_description|truncatechars:100 }}</p>
+                        <div class="price">₹{{ device.price|floatformat:2 }}</div>
+                        <a href="{% url 'main:device_detail' slug=device.slug %}" class="view-button">View Details</a>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p style="grid-column: 1 / -1; text-align: center; color: var(--secondary-color); font-size: 1.2rem;">
+                    No devices match your search criteria, even with relaxed filters.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fallback-alert {
+        grid-column: 1 / -1;
+        background-color: #4a3400; /* Dark yellow/orange background */
+        color: var(--secondary-color);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        border: 1px solid #ff9800;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize RAM range value display on page load
+    window.onload = function() {
+        const ramRange = document.getElementById('ramRange');
+        const ramValue = document.getElementById('ramValue');
+        if (ramRange && ramValue) {
+            // Note: We use || 0 to ensure accessories without explicit RAM are included by default.
+            ramValue.textContent = ramRange.value + ' GB'; 
+        }
+    };
+</script>
+{% endblock %}

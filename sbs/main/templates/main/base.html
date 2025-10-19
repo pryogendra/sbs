@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SBS Electronics{% endblock %} - Laptops & Devices</title>
+    <!-- Link the consolidated CSS file -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo"><a href="{% url 'main:device_list' %}">SBS Electronics</a></div>
+        <div class="navbar-links">
+            <a href="{% url 'main:device_list' %}">Shop</a>
+            <a href="{% url 'main:about' %}">About Us</a>
+            <a href="{% url 'main:contact' %}">Contact</a>
+        </div>
+    </nav>
+    
+    <!-- Django Messages Display -->
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    <main>
+        {% block content %}
+        <!-- Content from child templates will go here -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 SBS Electronics. All rights reserved.</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
